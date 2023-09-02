@@ -1,0 +1,19 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "tunnel": "cft --config ./cloudflared.yaml run"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@types/node": "^20.5.0",
+    "eslint": "^8.47.0",
+    "nuxt": "^3.6.5",
+    "prettier": "^3.0.2"
+  }
+}
