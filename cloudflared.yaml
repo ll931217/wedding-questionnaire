@@ -1,5 +1,0 @@
-url: http://localhost:3000
-tunnel: 6182039f-0386-49d4-9596-70c3293f0bc7
-credentials-file: /Users/ll931217/.cloudflared/6182039f-0386-49d4-9596-70c3293f0bc7.json
-warp-routing:
-    enabled: true

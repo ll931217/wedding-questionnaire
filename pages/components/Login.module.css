@@ -1,0 +1,37 @@
+#content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  width: 250px;
+}
+
+#content > * {
+  margin-bottom: 0.5em;
+}
+
+#content #language {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  line-height: 1.5;
+  filter: grayscale(1);
+}
+
+#content #language > div > label {
+  margin-left: 0.3em;
+}
+
+#content #name {
+  background: none;
+  border: 2px solid #939393;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 20px;
+  padding: 0.4em;
+}
+
+#content button {
+  margin-top: 0.5em;
+}

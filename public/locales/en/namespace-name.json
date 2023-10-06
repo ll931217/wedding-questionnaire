@@ -1,0 +1,11 @@
+{
+    "enterName": "Your name",
+    "selectLanguage": "Select language",
+    "submit": "Submit",
+    "gameIntroduction": "Game Introduction",
+    "instructions1": "Try to guess 10 questions about us",
+    "instructions2": "Each question count 10 points",
+    "instructions3": "The winner receives a prize",
+    "instructions4": "",
+    "statusWaiting": "Waiting"
+}
