@@ -1,46 +1,50 @@
-import questions from "./questions";
+import db from "./data";
 
-let loggedInUser = null;
-let currentQuestion = 0;
-const answers = {};
+import questions from "./data/questions";
 
-let timelapsed = 0;
-let interval = setInterval(() => {
-    if (timelapsed === 10) {
-        clearInterval(interval);
-    }
-    timelapsed += 1;
-}, 1000);
-
-export let gameStarted = false;
-
-export const startGame = () => (gameStarted = true);
+export const startGame = () => db.startGame();
+export const stopGame = () => db.stopGame();
 
 export const nextQuestion = () => {
-    timelapsed = 0;
-    clearInterval(interval);
-    currentQuestion += 1;
-    interval = setInterval(() => {
-        if (timelapsed === 10) {
-            clearInterval(interval);
-        }
-        timelapsed += 1;
-    }, 1000);
-};
-export const getCurrentQuestion = (lang) => questions[lang][currentQuestion];
-export const getQuestions = (lang) => questions[lang];
+    if (!db.getGameState()) return;
 
-export const answerQuestion = (uuid, correctAnswer) => {
-    if (!Object.prototype.hasOwnProperty.call(answers, uuid)) {
-        answers[uuid] = Array.from(Array(10)).fill(false);
+    if (questions["zh"].length <= db.getCurrentQuestion()) {
+        return db.stopGame();
     }
 
-    answers[uuid][currentQuestion] = correctAnswer;
+    db.nextQuestion();
+};
+export const getCurrentQuestion = (lang) =>
+    questions[lang][db.getCurrentQuestion()];
+export const getQuestions = (lang) => questions[lang];
 
-    return answers;
+export const answerQuestion = (clientId, name, score) => {
+    if (db.find(clientId)) {
+        db.insert(clientId, {
+            name,
+            scores: Array.from(Array(questions["zh"].length)).fill(0),
+        });
+    }
+
+    const answer = db.find(clientId);
+
+    answer.scores[db.getCurrentQuestion()] = score;
+
+    db.update(clientId, answer);
+
+    return db.find();
+};
+export const getResult = () => {
+    const result = {};
+    Object.keys(db.find()).forEach((clientId) => {
+        result[clientId] = {
+            name: answers[clientId].name,
+            score: answers[clientId].scores.reduce((a, b) => a + b, 0),
+        };
+    });
+    return result;
 };
 
-export const loginUser = (userId) => {
-    loggedInUser = userId;
-};
-export const getLoggedInUser = () => loggedInUser;
+export const loginUser = (userId) => db.loginAdmin(userId);
+export const logoutUser = () => db.logoutAdmin();
+export const getLoggedInUser = () => db.getLoggedInUser();

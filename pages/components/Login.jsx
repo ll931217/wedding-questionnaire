@@ -12,8 +12,8 @@ export function Login() {
     const [name, setName] = useState("");
 
     useEffect(() => {
-        if (!localStorage.getItem("client_id"))
-            localStorage.setItem("client_id", uuid4());
+        if (!localStorage.getItem("clientId"))
+            localStorage.setItem("clientId", uuid4());
 
         if (localStorage.getItem("lang")) {
             setLanguage(localStorage.getItem("lang") || "zh");

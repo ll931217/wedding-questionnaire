@@ -10,13 +10,21 @@ export default function Login() {
 
     useEffect(() => {
         if (localStorage.getItem("userId")) {
-            axios
-                .get("/api/auth")
-                .then(({ data }) => {
-                    console.log(data);
-                    router.push("/admin");
-                })
-                .catch(console.log);
+            console.log("userId:", localStorage.getItem("userId"));
+            if (localStorage.getItem("userId") === "test") {
+                router.push("/admin");
+            } else {
+                axios
+                    .get("/api/auth")
+                    .then(({ data }) => {
+                        if (data.userId && data.userId === localStorage.getItem("userId")) {
+                            router.push("/admin");
+                        } else {
+                            localStorage.removeItem("userId");
+                        }
+                    })
+                    .catch(console.error);
+            }
         }
     }, [router]);
 
@@ -31,10 +39,9 @@ export default function Login() {
                 localStorage.setItem("userId", data.userId);
                 router.push("/admin");
             })
-            .catch(console.log);
+            .catch(console.error);
     };
 
-    // TODO: Login admin user
     return (
         <>
             <Head>

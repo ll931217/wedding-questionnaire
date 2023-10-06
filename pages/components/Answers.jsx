@@ -1,7 +1,7 @@
-export const Answers = ({ answers, correctAnswer }) => {
+export const Answers = ({ answers, correctAnswer, timelapse }) => {
     const selectAnswer = (i) => {
         if (i === correctAnswer) {
-            console.log("correct");
+            console.log("correct", timelapse);
         } else {
             console.log("incorrect");
         }

@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 
 import { GameInstructions } from "./components/GameInstructions";
 import { useEffect } from "react";
+import Head from "next/head";
 
 export default function Waiting() {
     const router = useRouter();
@@ -21,9 +22,11 @@ export default function Waiting() {
         }, 1000);
     });
 
-    // TODO: Implement polling feature to check if game started
     return (
         <>
+            <Head>
+                <title>Game about to start</title>
+            </Head>
             <div id="main">
                 <div id="top-section">
                     <GameInstructions />
