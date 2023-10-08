@@ -2,10 +2,14 @@
     "enterName": "Your name",
     "selectLanguage": "Select language",
     "submit": "Submit",
+    "back": "Back",
     "gameIntroduction": "Game Introduction",
     "instructions1": "Try to guess 10 questions about us",
     "instructions2": "Each question count 10 points",
-    "instructions3": "The winner receives a prize",
-    "instructions4": "",
-    "statusWaiting": "Waiting"
+    "instructions3": "You get more points the faster you answer",
+    "instructions4": "The winner receives a prize",
+    "statusWaiting": "Waiting",
+    "result": "Game results",
+    "player": "Player",
+    "score": "Score"
 }

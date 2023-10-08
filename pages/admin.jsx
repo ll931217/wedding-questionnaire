@@ -30,29 +30,43 @@ export default function Admin() {
                 .catch(console.error);
         }
 
-        const checkGameStateInterval = setInterval(() => {
-            axios
-                .get("/api/state")
-                .then(({ data }) => {
-                    setGameState(data.gameStarted);
-                })
-                .catch(console.error);
-        }, 1000);
-
         axios
             .get("/api/questionnaire", {
                 params: {
                     lang: "zh",
+                    current: true,
                 },
             })
             .then(({ data }) => {
-                setCurrentQuestion(data.question);
+                console.log("[admin] Current Question:", data);
+                setCurrentQuestion(data.question.question);
             });
+    }, [router]);
+
+    useEffect(() => {
+        const checkGameStateInterval = setInterval(async () => {
+            try {
+                const { data } = await axios.get("/api/state");
+                setGameState(data.gameStarted);
+                if (data.currentQuestion === data.totalQuestions) {
+                    clearInterval(checkGameStateInterval);
+                    const { data } = await axios.get("/api/state", {
+                        params: {
+                            lang: "zh",
+                            result: true,
+                        },
+                    });
+                    setResult(data);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }, 1000);
 
         return () => {
             clearInterval(checkGameStateInterval);
         };
-    }, [router]);
+    }, []);
 
     const startGame = () => {
         axios
@@ -67,10 +81,9 @@ export default function Admin() {
 
     const nextQuestion = async () => {
         try {
-            const response = await axios.post(
-                "/api/questionnaire",
+            const { data } = await axios.put(
+                "/api/state",
                 {
-                    operation: "nextQuestion",
                     userId: localStorage.getItem("userId"),
                 },
                 {
@@ -80,7 +93,22 @@ export default function Admin() {
                 },
             );
 
-            setCurrentQuestion(response.data.question);
+            if (!data) {
+                setInterval(async () => {
+                    const { data: result } = await axios.get("/api/questionnaire", {
+                        params: {
+                            lang: "zh",
+                            result: true,
+                        },
+                    });
+
+                    console.log("[admin] Result:", result);
+
+                    setResult(result);
+                }, 1000);
+            } else {
+                setCurrentQuestion(data.question);
+            }
         } catch (error) {
             console.error(error);
             setErrorMessage(error.response.data.message);
@@ -125,7 +153,14 @@ export default function Admin() {
                             <th className="border border-slate-500">Score</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                        {Object.entries(result).map(([, { name, score }], index) => (
+                            <tr key={index}>
+                                <td className="border border-slate-500">{name}</td>
+                                <td className="border border-slate-500">{score}</td>
+                            </tr>
+                        ))}
+                    </tbody>
                 </table>
                 <p>{errorMessage}</p>
             </div>

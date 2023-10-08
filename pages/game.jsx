@@ -1,64 +1,150 @@
 import axios from "axios";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-import { Answers } from "./components/Answers";
-import { Question } from "./components/Question";
-
+/**
+ * TODO:
+ *   - [ ] Answers will be saved in localStorage
+ *   - [ ] Will check totalQuestions and currentQuestion index to check if game is over
+ *   - [ ] When game is over:
+ *       - [ ] Send stored `answer scores` to server including `clientId` and `name`
+ *       - [ ] Redirect player to result
+ *   - [ ] If game haven't started, redirect player to waiting room
+ *   - [ ] If game is over, redirect player to result
+ */
 export default function Game() {
     const router = useRouter();
     const [question, setQuestion] = useState("");
+    const [questionIndex, setQuestionIndex] = useState(0);
     const [answers, setAnswers] = useState();
     const [correctAnswer, setCorrectAnswer] = useState();
     const [timelapse, setTimelapse] = useState(0);
+    const [answered, setAnswered] = useState([]);
+    const [selectedAnswer, setSelectedAnswer] = useState();
 
     useEffect(() => {
-        axios
-            .get("/api/state")
-            .then((res) => {
-                if (!res.data.gameStarted) {
+        const fetchState = async () => {
+            try {
+                const { data } = await axios.get("/api/state");
+
+                console.log("[game] Current State:", data);
+                if (!data.gameStarted) {
                     router.push("/waiting");
                 }
-            })
-            .catch(console.error);
 
-        let interval = setInterval(() => {
-            axios
-                .get("/api/questionnaire", {
+                if (answered.length !== data.totalQuestions) {
+                    setAnswered(Array.from(Array(data.totalQuestions)).fill(0));
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchState();
+    }, [answered.length, router]);
+
+    useEffect(() => {
+        if (localStorage.getItem("answered")) {
+            setAnswered(JSON.parse(localStorage.getItem("answered")));
+        }
+    }, []);
+
+    useEffect(() => {
+        const sendAnswers = async () => {
+            try {
+                await axios.post(
+                    "/api/questionnaire",
+                    {
+                        clientId: localStorage.getItem("clientId"),
+                        name: localStorage.getItem("name"),
+                        score: answered.reduce((a, b) => a + b, 0),
+                    },
+                    { params: { lang: localStorage.getItem("lang") || "zh" } },
+                );
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        const questionPollingInterval = setInterval(async () => {
+            try {
+                const { data } = await axios.get("/api/questionnaire", {
                     params: {
                         lang: localStorage.getItem("lang") || "zh",
+                        current: true,
                     },
-                })
-                .then((res) => {
-                    console.log("Current Question:", res.data);
-                    if (timelapse < 10) {
-                        setTimelapse(timelapse + 1);
-                    }
+                });
 
-                    if (res.data.question !== question) {
-                        clearInterval(interval);
-                        setTimelapse(0);
-                        setQuestion(res.data.question);
-                        setAnswers(res.data.answers);
-                        setCorrectAnswer(res.data.correctAnswer);
-                    }
-                })
-                .catch(console.error);
+                console.log("Current Question:", data);
+
+                if (timelapse < 9) setTimelapse(timelapse + 1);
+
+                if (!data.question) {
+                    sendAnswers();
+                    clearInterval(questionPollingInterval);
+                    router.push("/result");
+                } else if (data.question.question !== question) {
+                    setTimelapse(0);
+                    setQuestion(data.question.question);
+                    setQuestionIndex(data.index);
+                    setAnswers(data.question.answers);
+                    setCorrectAnswer(data.question.correctAnswer);
+                    setSelectedAnswer(undefined);
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }, 1000);
-    }, [router, question, timelapse]);
+
+        return () => {
+            clearInterval(questionPollingInterval);
+        };
+    }, [router, answered, question, timelapse]);
+
+    /**
+     * - [x] Will check if answer is correct
+     * - [x] Set the score and store it in localStorage
+     * - [x] Score is calculated by timelapse, each second is a point deducted until 1 (For correct answers, incorrect answers is 0)
+     * - [ ] Highlight the selected answer, user should be able to change their answer as long as the question haven't been changed
+     */
+    const answerQuestion = (answerIndex) => {
+        setSelectedAnswer(answerIndex);
+        if (answerIndex === correctAnswer) {
+            answered[questionIndex] = 10 - timelapse;
+            localStorage.setItem("answered", JSON.stringify(answered));
+            setAnswered(answered);
+        }
+    };
 
     return (
         <>
+            <Head>
+                <title>Questionnaire</title>
+            </Head>
             <div id="main">
                 <div id="top-section">
-                    <Question question={question} />
+                    <h1 className="m-10">{question}</h1>
                 </div>
                 <div id="bottom-section">
-                    <Answers
-                        answers={answers}
-                        timelapse={timelapse}
-                        correctAnswer={correctAnswer}
-                    />
+                    <div className="grid grid-cols-2 gap-5">
+                        {answers
+                            ? answers.map((answer, i) => (
+                                <a
+                                    onClick={() => answerQuestion(i)}
+                                    key={i}
+                                    className={
+                                        "border-2 rounded-md shadow-lg text-center flex justify-center items-center w-40 h-40 p-2 " +
+                                        (selectedAnswer === i
+                                            ? "border-green-900 bg-gray-300"
+                                            : "border-gray-400 bg-white")
+                                    }
+                                >
+                                    <div>{answer}</div>
+                                </a>
+                            ))
+                            : null}
+                    </div>
                 </div>
             </div>
         </>

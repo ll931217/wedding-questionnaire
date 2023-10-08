@@ -1,26 +1,38 @@
 import axios from "axios";
-import { useRouter } from "next/router";
-
-import { GameInstructions } from "./components/GameInstructions";
-import { useEffect } from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+
+import GameInstructions from "./components/GameInstructions";
 
 export default function Waiting() {
     const router = useRouter();
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            axios
-                .get("/api/state")
-                .then((res) => {
-                    if (res.data.gameStarted) {
-                        clearInterval(interval);
-                        router.push("/game");
-                    }
-                })
-                .catch(console.error);
+        if (
+            !localStorage.getItem("name") ||
+            localStorage.getItem("name") === "" ||
+            !localStorage.getItem("clientId")
+        ) {
+            router.push("/");
+        }
+
+        const interval = setInterval(async () => {
+            try {
+                const { data } = await axios.get("/api/state");
+                if (data.gameStarted) {
+                    clearInterval(interval);
+                    router.push("/game");
+                }
+            } catch (error) {
+                console.error(error);
+            }
         }, 1000);
-    });
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [router]);
 
     return (
         <>

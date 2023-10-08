@@ -1,19 +1,29 @@
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 
 import styles from "./GameInstructions.module.css";
 
-export const GameInstructions = () => {
+export default function GameInstructions() {
     const { t } = useTranslation();
 
     return (
         <div id={styles.content}>
+            <Link
+                href={{ pathname: "/", query: { from: "waiting" } }}
+                className="underline"
+            >
+                {t("back")}
+            </Link>
+
             <h1>{t("gameIntroduction")}</h1>
+
             <div id={styles.instructions}>
                 <p>{t("instructions1")}</p>
                 <p>{t("instructions2")}</p>
                 <p>{t("instructions3")}</p>
                 <p>{t("instructions4")}</p>
             </div>
+
             <h3 style={{ textAlign: "center" }}>
                 <div id={styles.waiting}>
                     <span className={styles.typewriter}>{t("statusWaiting")}...</span>
@@ -21,4 +31,4 @@ export const GameInstructions = () => {
             </h3>
         </div>
     );
-};
+}

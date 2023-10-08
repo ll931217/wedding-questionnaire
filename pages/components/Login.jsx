@@ -5,15 +5,20 @@ import { v4 as uuid4 } from "uuid";
 
 import styles from "./Login.module.css";
 
-export function Login() {
+export default function Login() {
     const router = useRouter();
     const { t, i18n } = useTranslation();
     const [language, setLanguage] = useState("zh");
     const [name, setName] = useState("");
 
     useEffect(() => {
-        if (!localStorage.getItem("clientId"))
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+
+        if (!localStorage.getItem("clientId")) {
             localStorage.setItem("clientId", uuid4());
+        }
 
         if (localStorage.getItem("lang")) {
             setLanguage(localStorage.getItem("lang") || "zh");
@@ -22,9 +27,11 @@ export function Login() {
         }
 
         if (localStorage.getItem("name")) {
-            router.push("/waiting");
-        } else {
-            localStorage.setItem("name", "");
+            if (!params.from) {
+                router.push("/waiting");
+            }
+
+            setName(localStorage.getItem("name"));
         }
     }, [router]);
 
