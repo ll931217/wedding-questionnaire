@@ -6,17 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e": "start-server-and-test dev http://localhost:3000 cypress open --e2e",
+    "e2e:headless": "start-server-and-test dev http://localhost:3000 \"cypress run --e2e\"",
+    "cypress:open": "cypress open",
+    "test": "start-server-and-test start http://localhost:3000 cypress"
   },
   "dependencies": {
-    "autoprefixer": "10.4.15",
-    "axios": "^1.5.0",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.4.19",
+    "autoprefixer": "10.4.16",
+    "eslint": "8.51.0",
+    "eslint-config-next": "13.5.4",
     "i18next": "^23.5.1",
-    "next": "13.4.19",
+    "next": "13.5.4",
     "ni18n": "^1.1.0",
-    "postcss": "8.4.29",
+    "postcss": "8.4.31",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "^13.2.2",
@@ -24,6 +27,9 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "sass": "^1.66.1"
+    "axios": "^1.5.1",
+    "cypress": "^13.3.0",
+    "sass": "^1.69.1",
+    "start-server-and-test": "^2.0.1"
   }
 }

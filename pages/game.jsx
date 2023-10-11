@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 
 /**
  * TODO:
- *   - [ ] Answers will be saved in localStorage
- *   - [ ] Will check totalQuestions and currentQuestion index to check if game is over
- *   - [ ] When game is over:
- *       - [ ] Send stored `answer scores` to server including `clientId` and `name`
- *       - [ ] Redirect player to result
- *   - [ ] If game haven't started, redirect player to waiting room
- *   - [ ] If game is over, redirect player to result
+ *   - [x] Answers will be saved in localStorage
+ *   - [x] Will check totalQuestions and currentQuestion index to check if game is over
+ *   - [x] When game is over:
+ *       - [x] Send stored `answer scores` to server including `clientId` and `name`
+ *       - [x] Redirect player to result page
+ *   - [x] If game haven't started, redirect player to waiting room
+ *   - [x] If game is over, redirect player to result
  */
 export default function Game() {
     const router = useRouter();
@@ -78,8 +78,6 @@ export default function Game() {
 
                 console.log("Current Question:", data);
 
-                if (timelapse < 9) setTimelapse(timelapse + 1);
-
                 if (!data.question) {
                     sendAnswers();
                     clearInterval(questionPollingInterval);
@@ -97,8 +95,13 @@ export default function Game() {
             }
         }, 1000);
 
+        const timelapseInterval = setInterval(() => {
+            if (timelapse < 9) setTimelapse(timelapse + 1);
+        }, 3000);
+
         return () => {
             clearInterval(questionPollingInterval);
+            clearInterval(timelapseInterval);
         };
     }, [router, answered, question, timelapse]);
 
@@ -106,10 +109,11 @@ export default function Game() {
      * - [x] Will check if answer is correct
      * - [x] Set the score and store it in localStorage
      * - [x] Score is calculated by timelapse, each second is a point deducted until 1 (For correct answers, incorrect answers is 0)
-     * - [ ] Highlight the selected answer, user should be able to change their answer as long as the question haven't been changed
+     * - [ ] Highlight the right and wrong answers in green and red respectively
      */
     const answerQuestion = (answerIndex) => {
         setSelectedAnswer(answerIndex);
+
         if (answerIndex === correctAnswer) {
             answered[questionIndex] = 10 - timelapse;
             localStorage.setItem("answered", JSON.stringify(answered));
@@ -136,7 +140,9 @@ export default function Game() {
                                     className={
                                         "border-2 rounded-md shadow-lg text-center flex justify-center items-center w-40 h-40 p-2 " +
                                         (selectedAnswer === i
-                                            ? "border-green-900 bg-gray-300"
+                                            ? selectedAnswer === correctAnswer
+                                                ? "border-green-900 bg-green-300"
+                                                : "border-red-900 bg-red-300"
                                             : "border-gray-400 bg-white")
                                     }
                                 >
