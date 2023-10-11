@@ -13,17 +13,20 @@ export default function Admin() {
 
     // Check whether the user is logged in and check if id is valid
     useEffect(() => {
-        if (!localStorage.getItem("userId")) {
+        if (!sessionStorage.getItem("userId")) {
             router.push("/login");
         }
 
-        if (localStorage.getItem("userId") !== "test") {
+        if (sessionStorage.getItem("userId") !== "test") {
             axios
                 .get("/api/auth")
                 .then(({ data }) => {
                     console.log("Server logged in userId:", data.userId, data);
-                    if (!data.userId || data.userId !== localStorage.getItem("userId")) {
-                        localStorage.removeItem("userId");
+                    if (
+                        !data.userId ||
+                        data.userId !== sessionStorage.getItem("userId")
+                    ) {
+                        sessionStorage.removeItem("userId");
                         router.push("/login");
                     }
                 })
@@ -71,7 +74,7 @@ export default function Admin() {
     const startGame = () => {
         axios
             .post("/api/state", {
-                userId: localStorage.getItem("userId"),
+                userId: sessionStorage.getItem("userId"),
             })
             .then(({ data }) => {
                 setGameState(data.gameStarted);
@@ -84,11 +87,11 @@ export default function Admin() {
             const { data } = await axios.put(
                 "/api/state",
                 {
-                    userId: localStorage.getItem("userId"),
+                    userId: sessionStorage.getItem("userId"),
                 },
                 {
                     params: {
-                        lang: localStorage.getItem("lang"),
+                        lang: sessionStorage.getItem("lang"),
                     },
                 },
             );

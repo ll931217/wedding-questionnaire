@@ -16,33 +16,33 @@ export default function Login() {
             get: (searchParams, prop) => searchParams.get(prop),
         });
 
-        if (!localStorage.getItem("clientId")) {
-            localStorage.setItem("clientId", uuid4());
+        if (!sessionStorage.getItem("clientId")) {
+            sessionStorage.setItem("clientId", uuid4());
         }
 
-        if (localStorage.getItem("lang")) {
-            setLanguage(localStorage.getItem("lang") || "zh");
+        if (sessionStorage.getItem("lang")) {
+            setLanguage(sessionStorage.getItem("lang") || "zh");
         } else {
-            localStorage.setItem("lang", "zh");
+            sessionStorage.setItem("lang", "zh");
         }
 
-        if (localStorage.getItem("name")) {
+        if (sessionStorage.getItem("name")) {
             if (!params.from) {
                 router.push("/waiting");
             }
 
-            setName(localStorage.getItem("name"));
+            setName(sessionStorage.getItem("name"));
         }
     }, [router]);
 
     const changeLanguage = (e) => {
-        localStorage.setItem("lang", e.target.value);
+        sessionStorage.setItem("lang", e.target.value);
         i18n.changeLanguage(e.target.value);
         setLanguage(e.target.value);
     };
 
     const updateName = (e) => {
-        localStorage.setItem("name", e.target.value);
+        sessionStorage.setItem("name", e.target.value);
         setName(e.target.value);
     };
 

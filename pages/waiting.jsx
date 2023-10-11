@@ -10,9 +10,9 @@ export default function Waiting() {
 
     useEffect(() => {
         if (
-            !localStorage.getItem("name") ||
-            localStorage.getItem("name") === "" ||
-            !localStorage.getItem("clientId")
+            !sessionStorage.getItem("name") ||
+            sessionStorage.getItem("name") === "" ||
+            !sessionStorage.getItem("clientId")
         ) {
             router.push("/");
         }

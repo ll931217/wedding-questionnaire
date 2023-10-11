@@ -4,7 +4,8 @@ import { ni18nConfig } from "@/ni18n.config";
 import "./globals.sass";
 
 const App = ({ Component, pageProps }) => {
-    const locale = typeof window !== "undefined" && localStorage.getItem("lang");
+    const locale =
+        typeof window !== "undefined" && sessionStorage.getItem("lang");
 
     useSyncLanguage(locale);
 

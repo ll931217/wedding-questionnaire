@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 /**
  * TODO:
- *   - [x] Answers will be saved in localStorage
+ *   - [x] Answers will be saved in sessionStorage
  *   - [x] Will check totalQuestions and currentQuestion index to check if game is over
  *   - [x] When game is over:
  *       - [x] Send stored `answer scores` to server including `clientId` and `name`
@@ -22,6 +22,7 @@ export default function Game() {
     const [timelapse, setTimelapse] = useState(0);
     const [answered, setAnswered] = useState([]);
     const [selectedAnswer, setSelectedAnswer] = useState();
+    const [alreadyAnswered, setAlreadyAnswered] = useState(false);
 
     useEffect(() => {
         const fetchState = async () => {
@@ -45,8 +46,8 @@ export default function Game() {
     }, [answered.length, router]);
 
     useEffect(() => {
-        if (localStorage.getItem("answered")) {
-            setAnswered(JSON.parse(localStorage.getItem("answered")));
+        if (sessionStorage.getItem("answered")) {
+            setAnswered(JSON.parse(sessionStorage.getItem("answered")));
         }
     }, []);
 
@@ -56,11 +57,11 @@ export default function Game() {
                 await axios.post(
                     "/api/questionnaire",
                     {
-                        clientId: localStorage.getItem("clientId"),
-                        name: localStorage.getItem("name"),
+                        clientId: sessionStorage.getItem("clientId"),
+                        name: sessionStorage.getItem("name"),
                         score: answered.reduce((a, b) => a + b, 0),
                     },
-                    { params: { lang: localStorage.getItem("lang") || "zh" } },
+                    { params: { lang: sessionStorage.getItem("lang") || "zh" } },
                 );
             } catch (error) {
                 console.error(error);
@@ -71,7 +72,7 @@ export default function Game() {
             try {
                 const { data } = await axios.get("/api/questionnaire", {
                     params: {
-                        lang: localStorage.getItem("lang") || "zh",
+                        lang: sessionStorage.getItem("lang") || "zh",
                         current: true,
                     },
                 });
@@ -89,6 +90,7 @@ export default function Game() {
                     setAnswers(data.question.answers);
                     setCorrectAnswer(data.question.correctAnswer);
                     setSelectedAnswer(undefined);
+                    setAlreadyAnswered(false);
                 }
             } catch (error) {
                 console.error(error);
@@ -107,16 +109,19 @@ export default function Game() {
 
     /**
      * - [x] Will check if answer is correct
-     * - [x] Set the score and store it in localStorage
+     * - [x] Set the score and store it in sessionStorage
      * - [x] Score is calculated by timelapse, each second is a point deducted until 1 (For correct answers, incorrect answers is 0)
      * - [ ] Highlight the right and wrong answers in green and red respectively
      */
     const answerQuestion = (answerIndex) => {
+        if (alreadyAnswered) return;
+
         setSelectedAnswer(answerIndex);
+        setAlreadyAnswered(true);
 
         if (answerIndex === correctAnswer) {
             answered[questionIndex] = 10 - timelapse;
-            localStorage.setItem("answered", JSON.stringify(answered));
+            sessionStorage.setItem("answered", JSON.stringify(answered));
             setAnswered(answered);
         }
     };

@@ -16,7 +16,7 @@ const questions = {
             correctAnswer: 1,
         },
         {
-            question: "誰先跟對方說我愛你？",
+            question: "誰先跟對方說'我愛你'？",
             answers: ["新郎", "新娘", "同時", "重沒說過"],
             correctAnswer: 0,
         },
@@ -44,11 +44,6 @@ const questions = {
             question: "早上起來對對方說的第一句話或是動作？",
             answers: ["早安寶貝", "我出門了", "Kiss", "喂咪咪了嗎？"],
             correctAnswer: 3,
-        },
-        {
-            question: "兩人出遊誰比較會規劃？",
-            answers: ["都不規劃，說走就走", "新娘", "新郎", "兩人共同分工"],
-            correctAnswer: 1,
         },
         {
             question: "新郎＆新娘最常一起去哪逛逛？",
@@ -111,17 +106,6 @@ const questions = {
                 "Did you feed the cat?",
             ],
             correctAnswer: 3,
-        },
-        {
-            question:
-                "When they go on a vacation who does the majority of the planning",
-            answers: [
-                "No planning, spontaneous adventures",
-                "Bride",
-                "Groom",
-                "Both put equal amount of effort",
-            ],
-            correctAnswer: 1,
         },
         {
             question: "Where do they like to go shopping?",

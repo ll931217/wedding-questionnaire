@@ -13,7 +13,7 @@ export default function Result() {
             try {
                 const { data } = await axios.get("/api/questionnaire", {
                     params: {
-                        lang: localStorage.getItem("lang") || "zh",
+                        lang: sessionStorage.getItem("lang") || "zh",
                         result: true,
                     },
                 });
