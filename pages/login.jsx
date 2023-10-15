@@ -10,7 +10,6 @@ export default function Login() {
 
     useEffect(() => {
         if (sessionStorage.getItem("userId")) {
-            console.log("userId:", sessionStorage.getItem("userId"));
             if (sessionStorage.getItem("userId") === "test") {
                 router.push("/admin");
             } else {
@@ -34,10 +33,7 @@ export default function Login() {
     const onSubmit = (e) => {
         e.preventDefault();
         axios
-            .post("/api/auth", {
-                username,
-                password,
-            })
+            .post("/api/auth", { username, password })
             .then(({ data }) => {
                 sessionStorage.setItem("userId", data.userId);
                 router.push("/admin");

@@ -8,7 +8,6 @@ export default function Admin() {
 
     const [gameState, setGameState] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [currentQuestion, setCurrentQuestion] = useState("");
     const [result, setResult] = useState({});
 
     // Check whether the user is logged in and check if id is valid
@@ -32,18 +31,6 @@ export default function Admin() {
                 })
                 .catch(console.error);
         }
-
-        axios
-            .get("/api/questionnaire", {
-                params: {
-                    lang: "zh",
-                    current: true,
-                },
-            })
-            .then(({ data }) => {
-                console.log("[admin] Current Question:", data);
-                setCurrentQuestion(data.question.question);
-            });
     }, [router]);
 
     useEffect(() => {
@@ -51,16 +38,6 @@ export default function Admin() {
             try {
                 const { data } = await axios.get("/api/state");
                 setGameState(data.gameStarted);
-                if (data.currentQuestion === data.totalQuestions) {
-                    clearInterval(checkGameStateInterval);
-                    const { data } = await axios.get("/api/state", {
-                        params: {
-                            lang: "zh",
-                            result: true,
-                        },
-                    });
-                    setResult(data);
-                }
             } catch (error) {
                 console.error(error);
             }
@@ -71,51 +48,23 @@ export default function Admin() {
         };
     }, []);
 
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            const { data } = await axios.get("/api/result");
+
+            setResult(data);
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
     const startGame = () => {
         axios
-            .post("/api/state", {
-                userId: sessionStorage.getItem("userId"),
-            })
-            .then(({ data }) => {
-                setGameState(data.gameStarted);
-            })
+            .post("/api/state", { userId: sessionStorage.getItem("userId") })
+            .then(({ data }) => setGameState(data.gameStarted))
             .catch(console.error);
-    };
-
-    const nextQuestion = async () => {
-        try {
-            const { data } = await axios.put(
-                "/api/state",
-                {
-                    userId: sessionStorage.getItem("userId"),
-                },
-                {
-                    params: {
-                        lang: sessionStorage.getItem("lang"),
-                    },
-                },
-            );
-
-            if (!data) {
-                setInterval(async () => {
-                    const { data: result } = await axios.get("/api/questionnaire", {
-                        params: {
-                            lang: "zh",
-                            result: true,
-                        },
-                    });
-
-                    console.log("[admin] Result:", result);
-
-                    setResult(result);
-                }, 1000);
-            } else {
-                setCurrentQuestion(data.question);
-            }
-        } catch (error) {
-            console.error(error);
-            setErrorMessage(error.response.data.message);
-        }
     };
 
     /**
@@ -138,13 +87,9 @@ export default function Admin() {
                     <button onClick={() => startGame()} disabled={gameState}>
                         Start game
                     </button>
-
-                    <button onClick={() => nextQuestion()}>Next question</button>
                 </div>
 
                 <p>State: {gameState ? "Game started" : "Game not started"}</p>
-
-                <p>Q: {currentQuestion}</p>
 
                 <hr className="border border-slate-500 my-4" />
 

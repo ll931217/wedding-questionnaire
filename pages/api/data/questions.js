@@ -64,11 +64,11 @@ const questions = {
         },
         {
             question: "Where did they first met?",
-            answers: ["In their dreams", "Taipei", "Hualien", "Tinder"],
+            answers: ["In their dreams", "Hualien", "Taipei", "Tinder"],
             correctAnswer: 1,
         },
         {
-            question: 'Where said "I love you" first?',
+            question: 'Who said "I love you" first?',
             answers: ["Groom", "Bride", "Same time", "Never"],
             correctAnswer: 0,
         },
@@ -84,7 +84,7 @@ const questions = {
         },
         {
             question: "Where did the groom grow up?",
-            answers: ["America", "South Africa", "Ukraine", "Canada"],
+            answers: ["America", "Canada", "Ukraine", "South Africa"],
             correctAnswer: 3,
         },
         {

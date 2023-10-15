@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
-import GameInstructions from "./components/GameInstructions";
+import GameInstructions from "../components/GameInstructions";
 
 export default function Waiting() {
     const router = useRouter();

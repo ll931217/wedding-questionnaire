@@ -1,10 +1,9 @@
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
- * TODO:
  *   - [x] Answers will be saved in sessionStorage
  *   - [x] Will check totalQuestions and currentQuestion index to check if game is over
  *   - [x] When game is over:
@@ -24,12 +23,68 @@ export default function Game() {
     const [selectedAnswer, setSelectedAnswer] = useState();
     const [alreadyAnswered, setAlreadyAnswered] = useState(false);
 
+    const sendAnswers = useCallback(async () => {
+        try {
+            await axios.post(
+                "/api/questionnaire",
+                {
+                    clientId: sessionStorage.getItem("clientId"),
+                    name: sessionStorage.getItem("name"),
+                    score: answered.reduce((a, b) => a + b, 0),
+                },
+                { params: { lang: sessionStorage.getItem("lang") || "zh" } },
+            );
+        } catch (error) {
+            console.error(error);
+        }
+    }, [answered]);
+
+    const getQuestion = useCallback(
+        async (index = 0) => {
+            try {
+                const { data } = await axios.get("/api/questionnaire", {
+                    params: {
+                        lang: sessionStorage.getItem("lang") || "zh",
+                        index,
+                    },
+                });
+
+                if (data.question) {
+                    setTimelapse(0);
+
+                    setQuestionIndex(index);
+                    setQuestion(data.question.question);
+                    setAnswers(data.question.answers);
+                    setCorrectAnswer(data.question.correctAnswer);
+
+                    setSelectedAnswer(undefined);
+                    setAlreadyAnswered(false);
+                } else {
+                    await sendAnswers();
+                    setQuestion(`Game has ended/遊戲結束`);
+                    setAnswers([]);
+
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        ++i;
+                        if (i === 3) {
+                            clearInterval(interval);
+                            router.push("/result");
+                        }
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        [router, sendAnswers],
+    );
+
     useEffect(() => {
         const fetchState = async () => {
             try {
                 const { data } = await axios.get("/api/state");
 
-                console.log("[game] Current State:", data);
                 if (!data.gameStarted) {
                     router.push("/waiting");
                 }
@@ -46,72 +101,43 @@ export default function Game() {
     }, [answered.length, router]);
 
     useEffect(() => {
+        let answered = [];
+
         if (sessionStorage.getItem("answered")) {
-            setAnswered(JSON.parse(sessionStorage.getItem("answered")));
+            answered = JSON.parse(sessionStorage.getItem("answered"));
+            setAnswered(answered);
         }
-    }, []);
+
+        // Check if already started answering
+        if (Array.from(new Set(answered)).length > 1) {
+            // Loop reversely to find the latest answered
+            for (let i = answered.length - 1; i >= 0; i--) {
+                if (answered[i]) {
+                    getQuestion(i);
+                    break;
+                }
+            }
+        } else {
+            // Get first question
+            getQuestion();
+        }
+    }, [getQuestion]);
 
     useEffect(() => {
-        const sendAnswers = async () => {
-            try {
-                await axios.post(
-                    "/api/questionnaire",
-                    {
-                        clientId: sessionStorage.getItem("clientId"),
-                        name: sessionStorage.getItem("name"),
-                        score: answered.reduce((a, b) => a + b, 0),
-                    },
-                    { params: { lang: sessionStorage.getItem("lang") || "zh" } },
-                );
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        const questionPollingInterval = setInterval(async () => {
-            try {
-                const { data } = await axios.get("/api/questionnaire", {
-                    params: {
-                        lang: sessionStorage.getItem("lang") || "zh",
-                        current: true,
-                    },
-                });
-
-                console.log("Current Question:", data);
-
-                if (!data.question) {
-                    sendAnswers();
-                    clearInterval(questionPollingInterval);
-                    router.push("/result");
-                } else if (data.question.question !== question) {
-                    setTimelapse(0);
-                    setQuestion(data.question.question);
-                    setQuestionIndex(data.index);
-                    setAnswers(data.question.answers);
-                    setCorrectAnswer(data.question.correctAnswer);
-                    setSelectedAnswer(undefined);
-                    setAlreadyAnswered(false);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }, 1000);
-
         const timelapseInterval = setInterval(() => {
             if (timelapse < 9) setTimelapse(timelapse + 1);
         }, 3000);
 
         return () => {
-            clearInterval(questionPollingInterval);
             clearInterval(timelapseInterval);
         };
-    }, [router, answered, question, timelapse]);
+    }, [timelapse]);
 
     /**
      * - [x] Will check if answer is correct
      * - [x] Set the score and store it in sessionStorage
      * - [x] Score is calculated by timelapse, each second is a point deducted until 1 (For correct answers, incorrect answers is 0)
-     * - [ ] Highlight the right and wrong answers in green and red respectively
+     * - [x] Highlight the right and wrong answers in green and red respectively
      */
     const answerQuestion = (answerIndex) => {
         if (alreadyAnswered) return;
@@ -124,6 +150,8 @@ export default function Game() {
             sessionStorage.setItem("answered", JSON.stringify(answered));
             setAnswered(answered);
         }
+
+        setTimeout(() => getQuestion(questionIndex + 1), 1000);
     };
 
     return (

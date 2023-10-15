@@ -11,12 +11,7 @@ export default function Result() {
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
-                const { data } = await axios.get("/api/questionnaire", {
-                    params: {
-                        lang: sessionStorage.getItem("lang") || "zh",
-                        result: true,
-                    },
-                });
+                const { data } = await axios.get("/api/result");
 
                 setResult(data);
             } catch (error) {

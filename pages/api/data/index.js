@@ -5,7 +5,6 @@ class Database {
         this.questions = questions;
         this.currentLoggedInUser = null;
         this.gameStarted = false;
-        this.currentQuestion = 0;
         this.answers = {};
     }
 
@@ -17,12 +16,16 @@ class Database {
         return this.currentLoggedInUser;
     }
 
-    getCurrentIndex() {
-        return this.currentQuestion;
-    }
+    // getCurrentIndex() {
+    //     return this.currentQuestion;
+    // }
+    //
+    // getCurrentQuestion(lang = "zh") {
+    //     return this.questions[lang][this.currentQuestion];
+    // }
 
-    getCurrentQuestion(lang = "zh") {
-        return this.questions[lang][this.currentQuestion];
+    getQuestion(index, lang = "zh") {
+        return this.questions[lang][index] || null;
     }
 
     getQuestions(lang = "zh") {
@@ -45,18 +48,7 @@ class Database {
         return false;
     }
 
-    nextQuestion(lang = "zh") {
-        if (!this.gameStarted) return;
-
-        // Total: 11
-        if (this.currentQuestion <= this.questions[lang].length - 1) {
-            return this.questions[lang][++this.currentQuestion];
-        } else {
-            return this.stopGame();
-        }
-    }
-
-    answerQuestion(clientId, name, score) {
+    answerQuestion(clientId, name, index, score) {
         if (this.find(clientId)) {
             this.insert(clientId, {
                 name,
@@ -66,7 +58,7 @@ class Database {
 
         const answer = this.find(clientId);
 
-        answer.scores[this.getCurrentQuestion()] = score;
+        answer.scores[index] = score;
 
         this.update(clientId, answer);
 
