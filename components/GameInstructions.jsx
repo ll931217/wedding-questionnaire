@@ -1,10 +1,49 @@
+import axios from "axios";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import io from "socket.io-client";
 
 import styles from "./GameInstructions.module.css";
 
+let socket;
+
 export default function GameInstructions() {
     const { t } = useTranslation();
+    const [connectedClients, setConnectedClients] = useState(0);
+
+    useEffect(() => {
+        const socketInializer = async () => {
+            socket = io(`ws://${window.location.host}`, {
+                path: "/api/socket",
+            });
+
+            socket.emit("clientConnect", sessionStorage.getItem("clientId"));
+
+            socket.on("connectedClients", (clients) => {
+                if (clients >= 0) {
+                    setConnectedClients(clients);
+                }
+            });
+        };
+
+        socketInializer();
+
+        return () => {
+            socket.emit("clientDisconnect", sessionStorage.getItem("clientId"));
+        };
+    }, []);
+
+    useEffect(() => {
+        axios
+            .get("/api/connected")
+            .then(({ data }) => {
+                setConnectedClients(data.connected);
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    }, []);
 
     return (
         <div id={styles.content}>
@@ -29,6 +68,7 @@ export default function GameInstructions() {
                     <span className={styles.typewriter}>{t("statusWaiting")}...</span>
                 </div>
             </h3>
+            <h3 style={{ textAlign: "center" }}>Connected: {connectedClients}</h3>
         </div>
     );
 }

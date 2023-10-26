@@ -7,7 +7,7 @@ const questions = {
         },
         {
             question: "新郎＆新娘在一起多久？",
-            answers: ["3年", "4年", "5年", "6年"],
+            answers: ["ㄧ個月", "30年", "5年", "6年"],
             correctAnswer: 2,
         },
         {
@@ -32,7 +32,7 @@ const questions = {
         },
         {
             question: "新郎＆新娘養的寵物貓咪叫什麼名字？",
-            answers: ["小可愛", "爺", "寶貝", "咪咪"],
+            answers: ["小可愛", "小黑", "寶貝", "咪咪"],
             correctAnswer: 3,
         },
         {
@@ -59,7 +59,7 @@ const questions = {
         },
         {
             question: "How long have they been together?",
-            answers: ["3 years", "4 years", "5 years", "6 years"],
+            answers: ["1 month", "30 years", "5 years", "6 years"],
             correctAnswer: 2,
         },
         {
@@ -89,7 +89,7 @@ const questions = {
         },
         {
             question: "They recently adopted a cat, what did they name it?",
-            answers: ["Cutie", "Ye", "Baby", "Mimi"],
+            answers: ["Cutie", "Blackie", "Baby", "Mimi"],
             correctAnswer: 3,
         },
         {

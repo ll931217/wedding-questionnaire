@@ -6,6 +6,11 @@ class Database {
         this.currentLoggedInUser = null;
         this.gameStarted = false;
         this.answers = {};
+        this.clients = new Set();
+    }
+
+    getConnected() {
+        return this.clients.size;
     }
 
     getGameState() {
@@ -15,14 +20,6 @@ class Database {
     getLoggedInUser() {
         return this.currentLoggedInUser;
     }
-
-    // getCurrentIndex() {
-    //     return this.currentQuestion;
-    // }
-    //
-    // getCurrentQuestion(lang = "zh") {
-    //     return this.questions[lang][this.currentQuestion];
-    // }
 
     getQuestion(index, lang = "zh") {
         return this.questions[lang][index] || null;
@@ -63,6 +60,14 @@ class Database {
         this.update(clientId, answer);
 
         return this.find();
+    }
+
+    addClient(clientId) {
+        this.clients.add(clientId);
+    }
+
+    removeClient(clientId) {
+        this.clients.delete(clientId);
     }
 
     loginAdmin(userId) {

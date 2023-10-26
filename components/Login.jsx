@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
+import { io } from "socket.io-client";
 import { v4 as uuid4 } from "uuid";
 
 import styles from "./Login.module.css";
@@ -12,6 +13,8 @@ export default function Login() {
     const [name, setName] = useState("");
 
     useEffect(() => {
+        socketInializer();
+
         const params = new Proxy(new URLSearchParams(window.location.search), {
             get: (searchParams, prop) => searchParams.get(prop),
         });
@@ -34,6 +37,15 @@ export default function Login() {
             setName(sessionStorage.getItem("name"));
         }
     }, [router]);
+
+    const socketInializer = async () => {
+        await fetch("/api/socket");
+        const socket = io(undefined, { path: "/api/socket" });
+
+        socket.on("connect", () => {
+            console.log("Socket connected");
+        });
+    };
 
     const changeLanguage = (e) => {
         sessionStorage.setItem("lang", e.target.value);

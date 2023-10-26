@@ -1,7 +1,7 @@
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  *   - [x] Answers will be saved in sessionStorage
@@ -22,6 +22,8 @@ export default function Game() {
     const [answered, setAnswered] = useState([]);
     const [selectedAnswer, setSelectedAnswer] = useState();
     const [alreadyAnswered, setAlreadyAnswered] = useState(false);
+
+    let timelapseInterval = useRef(null);
 
     const sendAnswers = useCallback(async () => {
         try {
@@ -50,7 +52,12 @@ export default function Game() {
                 });
 
                 if (data.question) {
+                    clearInterval(timelapseInterval.current);
+
                     setTimelapse(0);
+                    timelapseInterval.current = setInterval(() => {
+                        if (timelapse < 9) setTimelapse(timelapse + 1);
+                    }, 10000);
 
                     setQuestionIndex(index);
                     setQuestion(data.question.question);
@@ -77,7 +84,7 @@ export default function Game() {
                 console.error(error);
             }
         },
-        [router, sendAnswers],
+        [router, sendAnswers, timelapse],
     );
 
     useEffect(() => {
@@ -124,14 +131,14 @@ export default function Game() {
     }, [getQuestion]);
 
     useEffect(() => {
-        const timelapseInterval = setInterval(() => {
+        timelapseInterval.current = setInterval(() => {
             if (timelapse < 9) setTimelapse(timelapse + 1);
-        }, 3000);
+        }, 10000);
 
         return () => {
-            clearInterval(timelapseInterval);
+            clearInterval(timelapseInterval.current);
         };
-    }, [timelapse]);
+    }, [timelapse, timelapseInterval]);
 
     /**
      * - [x] Will check if answer is correct
@@ -151,7 +158,9 @@ export default function Game() {
             setAnswered(answered);
         }
 
-        setTimeout(() => getQuestion(questionIndex + 1), 1000);
+        setTimeout(() => {
+            getQuestion(questionIndex + 1);
+        }, 1000);
     };
 
     return (

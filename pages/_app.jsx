@@ -5,7 +5,7 @@ import "./globals.sass";
 
 const App = ({ Component, pageProps }) => {
     const locale =
-        typeof window !== "undefined" && sessionStorage.getItem("lang");
+        typeof window !== "undefined" && window.sessionStorage.getItem("lang");
 
     useSyncLanguage(locale);
 
