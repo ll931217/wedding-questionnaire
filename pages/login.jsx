@@ -9,20 +9,17 @@ export default function Login() {
     const [password, setPassword] = useState("");
 
     useEffect(() => {
-        if (sessionStorage.getItem("userId")) {
-            if (sessionStorage.getItem("userId") === "test") {
+        if (localStorage.getItem("userId")) {
+            if (localStorage.getItem("userId") === "test") {
                 router.push("/admin");
             } else {
                 axios
                     .get("/api/auth")
                     .then(({ data }) => {
-                        if (
-                            data.userId &&
-                            data.userId === sessionStorage.getItem("userId")
-                        ) {
+                        if (data.userId && data.userId === localStorage.getItem("userId")) {
                             router.push("/admin");
                         } else {
-                            sessionStorage.removeItem("userId");
+                            localStorage.removeItem("userId");
                         }
                     })
                     .catch(console.error);
@@ -35,7 +32,7 @@ export default function Login() {
         axios
             .post("/api/auth", { username, password })
             .then(({ data }) => {
-                sessionStorage.setItem("userId", data.userId);
+                localStorage.setItem("userId", data.userId);
                 router.push("/admin");
             })
             .catch(console.error);

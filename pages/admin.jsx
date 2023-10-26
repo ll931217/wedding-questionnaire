@@ -14,10 +14,7 @@ export default function Admin() {
 
     useEffect(() => {
         const socketInializer = async () => {
-            await fetch("/api/socket");
-            const socket = io(`ws://${window.location.host}`, {
-                path: "/api/socket",
-            });
+            const socket = io(undefined, { path: "/api/socket" });
 
             socket.on("connectedClients", (data) => {
                 if (data >= 0) {
@@ -93,7 +90,7 @@ export default function Admin() {
 
     const startGame = () => {
         axios
-            .post("/api/state", { userId: sessionStorage.getItem("userId") })
+            .post("/api/state", { userId: localStorage.getItem("userId") })
             .then(({ data }) => setGameState(data.gameStarted))
             .catch((err) => {
                 setErrorMessage(err);

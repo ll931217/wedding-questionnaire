@@ -14,9 +14,7 @@ export default function GameInstructions() {
 
     useEffect(() => {
         const socketInializer = async () => {
-            socket = io(`ws://${window.location.host}`, {
-                path: "/api/socket",
-            });
+            socket = io(undefined, { path: "/api/socket" });
 
             socket.emit("clientConnect", sessionStorage.getItem("clientId"));
 

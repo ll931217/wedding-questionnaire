@@ -39,7 +39,6 @@ export default function Login() {
     }, [router]);
 
     const socketInializer = async () => {
-        await fetch("/api/socket");
         const socket = io(undefined, { path: "/api/socket" });
 
         socket.on("connect", () => {
