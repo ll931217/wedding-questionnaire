@@ -31,7 +31,7 @@ class Database {
 
     getResult() {
         return Object.fromEntries(
-            Object.entries(this.answers).sort(([, a], [, b]) => b - a),
+            Object.entries(this.answers).sort(([, a], [, b]) => b.score - a.score),
         );
     }
 

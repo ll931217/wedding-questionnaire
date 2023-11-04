@@ -1,20 +1,26 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { useRouter } from "next/router";
-import { io } from "socket.io-client";
 import { v4 as uuid4 } from "uuid";
 
 import styles from "./Login.module.css";
 
 export default function Login() {
     const router = useRouter();
-    const { t, i18n } = useTranslation();
     const [language, setLanguage] = useState("zh");
     const [name, setName] = useState("");
 
-    useEffect(() => {
-        socketInializer();
-    }, []);
+    const t = {
+        zh: {
+            enterName: "您的姓名",
+            selectLanguage: "選擇語言",
+            submit: "提交",
+        },
+        en: {
+            enterName: "Your name",
+            selectLanguage: "Select language",
+            submit: "Submit",
+        },
+    };
 
     useEffect(() => {
         const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -40,17 +46,8 @@ export default function Login() {
         }
     }, [router]);
 
-    const socketInializer = async () => {
-        const socket = io(undefined, { path: "/api/socket" });
-
-        socket.on("connect", () => {
-            console.log("Socket connected");
-        });
-    };
-
     const changeLanguage = (e) => {
         sessionStorage.setItem("lang", e.target.value);
-        i18n.changeLanguage(e.target.value);
         setLanguage(e.target.value);
     };
 
@@ -66,7 +63,7 @@ export default function Login() {
 
     return (
         <form id={styles.content}>
-            <label htmlFor="language">{t("selectLanguage")}</label>
+            <label htmlFor="language">{t[language]["selectLanguage"]}</label>
             <div id={styles.language}>
                 <div>
                     <input
@@ -89,7 +86,7 @@ export default function Login() {
                     <label htmlFor="English">English</label>
                 </div>
             </div>
-            <label htmlFor="name">{t("enterName")}</label>
+            <label htmlFor="name">{t[language]["enterName"]}</label>
             <input type="text" id={styles.name} value={name} onChange={updateName} />
             <button
                 type="submit"
@@ -97,7 +94,7 @@ export default function Login() {
                 onClick={() => submitForm()}
                 disabled={!name}
             >
-                {t("submit")}
+                {t[language]["submit"]}
             </button>
         </form>
     );

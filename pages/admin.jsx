@@ -131,15 +131,15 @@ export default function Admin() {
                 <table className="border-collapse border border-slate-500 w-full">
                     <thead>
                         <tr>
-                            <th className="border border-slate-500">Player</th>
-                            <th className="border border-slate-500">Score</th>
+                            <th className="border border-slate-500 px-1 py-2">Player</th>
+                            <th className="border border-slate-500 px-1 py-2">Score</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="results">
                         {Object.entries(result).map(([, { name, score }], index) => (
                             <tr key={index}>
-                                <td className="border border-slate-500">{name}</td>
-                                <td className="border border-slate-500">{score}</td>
+                                <td className="border border-slate-500 px-1 py-2">{name}</td>
+                                <td className="border border-slate-500 px-1 py-2">{score}</td>
                             </tr>
                         ))}
                     </tbody>

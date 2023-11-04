@@ -1,7 +1,6 @@
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import io from "socket.io-client";
 
 import styles from "./GameInstructions.module.css";
@@ -9,8 +8,33 @@ import styles from "./GameInstructions.module.css";
 let socket;
 
 export default function GameInstructions() {
-    const { t } = useTranslation();
     const [connectedClients, setConnectedClients] = useState(0);
+    const [lang, setLang] = useState("zh");
+
+    const t = {
+        zh: {
+            back: "返回",
+            gameIntroduction: "遊戲介紹",
+            instructions1: "共10題，每題10分",
+            instructions2: "回答速度越快越多分",
+            instructions3: "得分最高玩家即可",
+            instructions4: "獲得精美小禮物一份",
+            statusWaiting: "等待中",
+        },
+        en: {
+            back: "Back",
+            gameIntroduction: "Game Introduction",
+            instructions1: "Try to guess 10 questions about us",
+            instructions2: "Each question count 10 points",
+            instructions3: "You get more points the faster you answer",
+            instructions4: "The winner receives a prize",
+            statusWaiting: "Waiting",
+        },
+    };
+
+    useEffect(() => {
+        setLang(sessionStorage.getItem("lang") || "zh");
+    }, []);
 
     useEffect(() => {
         const socketInializer = async () => {
@@ -49,21 +73,23 @@ export default function GameInstructions() {
                 href={{ pathname: "/", query: { from: "waiting" } }}
                 className="underline"
             >
-                {t("back")}
+                {t[lang]["back"]}
             </Link>
 
-            <h1>{t("gameIntroduction")}</h1>
+            <h1>{t[lang]["gameIntroduction"]}</h1>
 
             <div id={styles.instructions}>
-                <p>{t("instructions1")}</p>
-                <p>{t("instructions2")}</p>
-                <p>{t("instructions3")}</p>
-                <p>{t("instructions4")}</p>
+                <p>{t[lang]["instructions1"]}</p>
+                <p>{t[lang]["instructions2"]}</p>
+                <p>{t[lang]["instructions3"]}</p>
+                <p>{t[lang]["instructions4"]}</p>
             </div>
 
             <h3 style={{ textAlign: "center" }}>
                 <div id={styles.waiting}>
-                    <span className={styles.typewriter}>{t("statusWaiting")}...</span>
+                    <span className={styles.typewriter}>
+                        {t[lang]["statusWaiting"]}...
+                    </span>
                 </div>
             </h3>
             <h3 style={{ textAlign: "center" }}>Connected: {connectedClients}</h3>
