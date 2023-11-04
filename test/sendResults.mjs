@@ -17,7 +17,11 @@ const sendResult = async (clientId, name, score) => {
 
         return data;
     } catch (error) {
-        console.error(error);
+        if (error.response && error.response.data) {
+            console.error(error.response.data);
+        } else {
+            console.error(error);
+        }
     }
 };
 

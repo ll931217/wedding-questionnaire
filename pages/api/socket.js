@@ -19,10 +19,10 @@ const SocketHandler = (_, res) => {
                 io.emit("connectedClients", db.getConnected());
             });
 
-            socket.on("clientDisconnect", (clientId) => {
-                db.removeClient(clientId);
-                io.emit("connectedClients", db.getConnected());
-            });
+            // socket.on("clientDisconnect", (clientId) => {
+            //     db.removeClient(clientId);
+            //     io.emit("connectedClients", db.getConnected());
+            // });
         });
     }
 

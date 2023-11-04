@@ -2,6 +2,9 @@ import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import destr from "destr";
+
+const timePerQuestion = 10000;
 
 /**
  *   - [x] Answers will be saved in sessionStorage
@@ -27,12 +30,15 @@ export default function Game() {
 
     const sendAnswers = useCallback(async () => {
         try {
+            console.log("Answered before score:", answered);
+            const score = answered.reduce((a, b) => a + b, 0);
+            console.log("Final score:", score);
             await axios.post(
                 "/api/questionnaire",
                 {
                     clientId: sessionStorage.getItem("clientId"),
                     name: sessionStorage.getItem("name"),
-                    score: answered.reduce((a, b) => a + b, 0),
+                    score,
                 },
                 { params: { lang: sessionStorage.getItem("lang") || "zh" } },
             );
@@ -44,12 +50,19 @@ export default function Game() {
     const getQuestion = useCallback(
         async (index = 0) => {
             try {
-                const { data } = await axios.get("/api/questionnaire", {
-                    params: {
-                        lang: sessionStorage.getItem("lang") || "zh",
-                        index,
-                    },
-                });
+                let data;
+                try {
+                    // !ERROR IS HERE!
+                    const response = await axios.get("/api/questionnaire", {
+                        params: {
+                            lang: sessionStorage.getItem("lang") || "zh",
+                            index,
+                        },
+                    });
+                    data = response.data;
+                } catch (error) {
+                    console.error(error);
+                }
 
                 if (data.question) {
                     clearInterval(timelapseInterval.current);
@@ -57,7 +70,7 @@ export default function Game() {
                     setTimelapse(0);
                     timelapseInterval.current = setInterval(() => {
                         if (timelapse < 9) setTimelapse(timelapse + 1);
-                    }, 10000);
+                    }, timePerQuestion);
 
                     setQuestionIndex(index);
                     setQuestion(data.question.question);
@@ -71,14 +84,9 @@ export default function Game() {
                     setQuestion(`Game has ended/遊戲結束`);
                     setAnswers([]);
 
-                    let i = 0;
-                    const interval = setInterval(() => {
-                        ++i;
-                        if (i === 3) {
-                            clearInterval(interval);
-                            router.push("/result");
-                        }
-                    }, 1000);
+                    setTimeout(() => {
+                        router.push("/result");
+                    }, 3000);
                 }
             } catch (error) {
                 console.error(error);
@@ -96,7 +104,8 @@ export default function Game() {
                     router.push("/waiting");
                 }
 
-                if (answered.length !== data.totalQuestions) {
+                if (!sessionStorage.getItem("answered")) {
+                    console.log("Populate answered");
                     setAnswered(Array.from(Array(data.totalQuestions)).fill(0));
                 }
             } catch (error) {
@@ -108,19 +117,16 @@ export default function Game() {
     }, [answered.length, router]);
 
     useEffect(() => {
-        let answered = [];
-
-        if (sessionStorage.getItem("answered")) {
-            answered = JSON.parse(sessionStorage.getItem("answered"));
-            setAnswered(answered);
-        }
+        const answered = destr(sessionStorage.getItem("answered")) || [];
+        setAnswered(answered);
 
         // Check if already started answering
         if (Array.from(new Set(answered)).length > 1) {
             // Loop reversely to find the latest answered
             for (let i = answered.length - 1; i >= 0; i--) {
                 if (answered[i]) {
-                    getQuestion(i);
+                    console.log("Answered:", answered);
+                    getQuestion(i + 1);
                     break;
                 }
             }
@@ -128,12 +134,12 @@ export default function Game() {
             // Get first question
             getQuestion();
         }
-    }, [getQuestion]);
+    }, []);
 
     useEffect(() => {
         timelapseInterval.current = setInterval(() => {
             if (timelapse < 9) setTimelapse(timelapse + 1);
-        }, 10000);
+        }, timePerQuestion);
 
         return () => {
             clearInterval(timelapseInterval.current);
@@ -181,10 +187,14 @@ export default function Game() {
                                     key={i}
                                     className={
                                         "border-2 rounded-md shadow-lg text-center flex justify-center items-center w-40 h-40 p-2 " +
-                                        (selectedAnswer === i
-                                            ? selectedAnswer === correctAnswer
-                                                ? "border-green-900 bg-green-300"
-                                                : "border-red-900 bg-red-300"
+                                        ([0, 1, 2, 3].includes(selectedAnswer)
+                                            ? selectedAnswer === i
+                                                ? selectedAnswer === correctAnswer
+                                                    ? "border-green-900 bg-green-300"
+                                                    : "border-red-900 bg-red-300"
+                                                : correctAnswer === i
+                                                    ? "border-green-900 bg-green-300"
+                                                    : "border-gray-400 bg-white"
                                             : "border-gray-400 bg-white")
                                     }
                                 >

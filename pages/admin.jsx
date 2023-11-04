@@ -125,7 +125,9 @@ export default function Admin() {
 
                 <hr className="border border-slate-500 my-4" />
 
-                <h3 className="text-2xl font-bold text-gray-700">Results</h3>
+                <h3 className="text-2xl font-bold text-gray-700">
+                    Results: (Players completed: {Object.keys(result).length})
+                </h3>
                 <table className="border-collapse border border-slate-500 w-full">
                     <thead>
                         <tr>

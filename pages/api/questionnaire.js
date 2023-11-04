@@ -8,12 +8,6 @@ export default function handler(req, res) {
             res.json({
                 question: db.getQuestion(parseInt(req.query.index), req.query.lang),
             });
-            // } else if (req.query.current) {
-            //     // Get current question
-            //     res.status(200).json({
-            //         question: db.getCurrentQuestion(req.query.lang),
-            //         index: db.getCurrentIndex(),
-            //     });
         } else {
             // Get questions
             res.json(db.getQuestions());

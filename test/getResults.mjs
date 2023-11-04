@@ -2,12 +2,7 @@ import fetch from "./axios.mjs";
 
 const getResults = async () => {
     try {
-        const { data } = await fetch.get("/api/questionnaire", {
-            params: {
-                lang: "zh",
-                result: true,
-            },
-        });
+        const { data } = await fetch.get("/api/result");
 
         console.log("Results:", data);
 
