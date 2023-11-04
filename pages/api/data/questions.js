@@ -17,7 +17,7 @@ const questions = {
         },
         {
             question: "誰先跟對方說'我愛你'？",
-            answers: ["新郎", "新娘", "同時", "重沒說過"],
+            answers: ["新郎", "新娘", "同時", "從沒說過"],
             correctAnswer: 0,
         },
         {
